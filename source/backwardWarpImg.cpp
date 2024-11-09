@@ -1,4 +1,5 @@
 #include "backwardWarpImg.h"
+#include <omp.h>
 
 std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen::Matrix3d& destToSrc_H, const cv::Size& canvas_shape) {
     // Input arguments: src_img is the source image, with size (width, height, 3)
