@@ -50,3 +50,5 @@ We can always use the same docker image without building the docker again.
 
 6. Git add, commit and push to your own branch, ask @Ethan to review and merge.
 
+7. Supplymentary Jidong's comments:
+   In the blendImagePair.cpp and backwardWarpImg.cpp files, there are tips for how to compile these two files, and you can also check the input and output data format with the attached commented example main function.
