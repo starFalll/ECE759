@@ -12,7 +12,7 @@ SOURCES="ransac.cpp helper.cpp backwardWarpImg.cpp blendImagePair.cpp homography
 OUTPUT="ransac_program"
 
 # Compile with C++17, linking OpenCV
-$CXX -std=c++17 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4` -I./ -I/usr/include/eigen3
+$CXX -std=c++17 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
 
 # Check compilation result
 if [ $? -eq 0 ]; then

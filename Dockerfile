@@ -1,5 +1,5 @@
 # Use an official Ubuntu base image
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y \
 # Install OpenCV
 RUN apt-get update && apt-get install -y \
     libopencv-dev \
-    libopencv-contrib4.2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Eigen
