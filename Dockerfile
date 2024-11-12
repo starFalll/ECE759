@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
 # Install OpenCV
 RUN apt-get update && apt-get install -y \
     libopencv-dev \
+    libopencv-contrib4.2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Eigen
