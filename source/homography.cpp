@@ -64,38 +64,38 @@ cv::Mat showCorrespondence(const cv::Mat& img1, const cv::Mat& img2, const std::
     return result;
 }
 
-int main() {
-    // Load example images
-    cv::Mat orig_img = cv::imread("../photos/homography/portrait.png");
-    cv::Mat warped_img = cv::imread("../photos/homography/portrait_transformed.png");
+// int main() {
+//     // Load example images
+//     cv::Mat orig_img = cv::imread("../photos/homography/portrait.png");
+//     cv::Mat warped_img = cv::imread("../photos/homography/portrait_transformed.png");
 
-    if (orig_img.empty() || warped_img.empty()) {
-        std::cerr << "Could not load images." << std::endl;
-        return -1;
-    }
+//     if (orig_img.empty() || warped_img.empty()) {
+//         std::cerr << "Could not load images." << std::endl;
+//         return -1;
+//     }
 
-    // Selected points
-    std::vector<Eigen::Vector2d> src_pts = { {158, 101}, {332, 316}, {386, 574}, {464, 514}};
-    std::vector<Eigen::Vector2d> dest_pts = { {136, 143}, {261, 287}, {305, 527}, {389, 481} };
+//     // Selected points
+//     std::vector<Eigen::Vector2d> src_pts = { {158, 101}, {332, 316}, {386, 574}, {464, 514}};
+//     std::vector<Eigen::Vector2d> dest_pts = { {136, 143}, {261, 287}, {305, 527}, {389, 481} };
 
-    // Compute homography
-    Eigen::Matrix3d H = computeHomography(src_pts, dest_pts);
-    std::cout<< "homography:"<<H<<std::endl;
+//     // Compute homography
+//     Eigen::Matrix3d H = computeHomography(src_pts, dest_pts);
+//     std::cout<< "homography:"<<H<<std::endl;
 
-    // Choose another set of points on orig_img for testing.
-    std::vector<Eigen::Vector2d> test_pts = { {158, 101}, {332, 316}, {386, 574}, {464, 514} };
+//     // Choose another set of points on orig_img for testing.
+//     std::vector<Eigen::Vector2d> test_pts = { {158, 101}, {332, 316}, {386, 574}, {464, 514} };
 
-    // Apply homography
-    std::vector<Eigen::Vector2d> transformed_pts = applyHomography(H, test_pts);
-    for (const auto& point : transformed_pts) {
-        std::cout << "(" << point.x() << ", " << point.y() << ")\n";
-    }
+//     // Apply homography
+//     std::vector<Eigen::Vector2d> transformed_pts = applyHomography(H, test_pts);
+//     for (const auto& point : transformed_pts) {
+//         std::cout << "(" << point.x() << ", " << point.y() << ")\n";
+//     }
 
-    // Show correspondences
-    cv::Mat result = showCorrespondence(orig_img, warped_img, test_pts, transformed_pts);
+//     // Show correspondences
+//     cv::Mat result = showCorrespondence(orig_img, warped_img, test_pts, transformed_pts);
 
-    // Save the result
-    cv::imwrite("../photos/homography/homography.jpg", result);
+//     // Save the result
+//     cv::imwrite("../photos/homography/homography.jpg", result);
 
-    return 0;
-}
+//     return 0;
+// }

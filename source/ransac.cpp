@@ -71,8 +71,8 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
 
 int main() {
     // Load source and destination images
-    cv::Mat img_src = cv::imread("data/mountain_left.png");
-    cv::Mat img_dst = cv::imread("data/mountain_center.png");
+    cv::Mat img_src = cv::imread("../photos/data/mountain_left.jpg");
+    cv::Mat img_dst = cv::imread("../photos/data/mountain_center.jpg");
 
     if (img_src.empty() || img_dst.empty()) {
         std::cerr << "Error: Could not load images." << std::endl;
@@ -82,17 +82,9 @@ int main() {
     // Generate SIFT Matches
     auto [xs, xd] = genSIFTMatches(img_src, img_dst);
 
-    // Flip x and y coordinates for xs and xd
-    for (auto& point : xs) {
-        std::swap(point[0], point[1]);
-    }
-    for (auto& point : xd) {
-        std::swap(point[0], point[1]);
-    }
-
     // Show correspondence before RANSAC
     cv::Mat before_img = showCorrespondence(img_src, img_dst, xs, xd);
-    cv::imwrite("outputs/before_ransac.png", before_img);
+    cv::imwrite("../photos/data/before_ransac.png", before_img);
 
     // RANSAC parameters
     int ransac_n = 4000; // Max number of iterations
@@ -112,7 +104,7 @@ int main() {
 
     // Show correspondence after RANSAC
     cv::Mat after_img = showCorrespondence(img_src, img_dst, xs_inliers, xd_inliers);
-    cv::imwrite("outputs/after_ransac.png", after_img);
+    cv::imwrite("../photos/data/after_ransac.png", after_img);
 
     return 0;
 }
