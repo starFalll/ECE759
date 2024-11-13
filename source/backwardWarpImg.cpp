@@ -52,11 +52,10 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
 
 
 /////////////////////////////////////////////////////////////
-//测试用代码，编译backwardWarpImg.cpp之前请注释下面的main() 函数
-/////////////////////////////////////////////////////////////
-// 将下面主函数复制到外面单独的main函数中，编译： g++ -fopenmp -o test_program main.cpp backwardWarpImg.cpp homography.cpp `pkg-config --cflags --libs opencv4` -I /usr/include/eigen3
-////////////////////////////////////////////////////////////
-// 运行  ./test_program
+// Below is the main() funtion for testing the backwardWarpImg.cpp. 
+// If you just want to test the backwardWarpImg.cpp, please copy the main function code to a separate main function file outside 
+// Compile： g++ -fopenmp -o test_program main.cpp backwardWarpImg.cpp homography.cpp `pkg-config --cflags --libs opencv4` -I /usr/include/eigen3
+// execute:  ./test_program
 /////////////////////////////////////////////////////////////
 
 // #include <opencv2/opencv.hpp>
