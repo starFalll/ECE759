@@ -10,6 +10,11 @@
 #include "blendImagePair.h"
 #include "backwardWarpImg.h"
 
+void PrintMat(const cv::Mat& img, std::string name)
+{
+    std::cout<<name<<": size: "<<img.size()<<" channel:"<<img.channels()<<" type:"<<img.type()<<std::endl;
+}
+
 Eigen::Matrix3d transferHomography(const Eigen::Matrix3d& H, double tx, double ty) {
     Eigen::Matrix3d transfer_matrix = Eigen::Matrix3d::Identity();
     transfer_matrix(0, 2) = tx;
@@ -21,31 +26,9 @@ cv::Mat stitchImg(const std::vector<cv::Mat>& imgs) {
     constexpr int dimension = 255;
     cv::Mat left = imgs[0].clone();
 
-    // Replace black pixels (value 0) in left with 1/dimension
-    #pragma omp parallel for collapse(3)
-    for (int y = 0; y < left.rows; ++y) {
-        for (int x = 0; x < left.cols; ++x) {
-            for (int c = 0; c < left.channels(); ++c) {
-                if (left.at<cv::Vec3b>(y, x)[c] == 0) {
-                    left.at<cv::Vec3b>(y, x)[c] = static_cast<unsigned char>(1.0 / dimension);
-                }
-            }
-        }
-    }
-
     for (size_t idx = 1; idx < imgs.size(); ++idx) {
         cv::Mat right = imgs[idx].clone();
 
-        #pragma omp parallel for collapse(3)
-        for (int y = 0; y < right.rows; ++y) {
-            for (int x = 0; x < right.cols; ++x) {
-                for (int c = 0; c < right.channels(); ++c) {
-                    if (right.at<cv::Vec3b>(y, x)[c] == 0) {
-                        right.at<cv::Vec3b>(y, x)[c] = static_cast<unsigned char>(1.0 / dimension);
-                    }
-                }
-            }
-        }
 
         // 1. first get the Homography after denoising
         auto [xs, xd] = genSIFTMatches(right, left);
@@ -70,32 +53,30 @@ cv::Mat stitchImg(const std::vector<cv::Mat>& imgs) {
         int new_x_len = static_cast<int>(std::ceil(std::max_element(left_corners.begin(), left_corners.end(),
                                                                      [](const Eigen::Vector2d& a, const Eigen::Vector2d& b) { return a.x() < b.x(); })->x() +
                                                     new_origin_x));
+        new_x_len = std::max(new_x_len, left.cols + int(new_origin_x));                          
         int new_y_len = static_cast<int>(std::ceil(std::max_element(left_corners.begin(), left_corners.end(),
                                                                      [](const Eigen::Vector2d& a, const Eigen::Vector2d& b) { return a.y() < b.y(); })->y() +
                                                     new_origin_y));
-
+        new_y_len = std::max(new_y_len, left.rows + int(new_origin_y));
         H = transferHomography(H, new_origin_x, new_origin_y);
 
         cv::Size dest_canvas_shape(new_x_len, new_y_len);
         cv::Mat curr_canvas(dest_canvas_shape, left.type(), cv::Scalar::all(0));
         left.copyTo(curr_canvas(cv::Rect(static_cast<int>(new_origin_x), static_cast<int>(new_origin_y), left.cols, left.rows)));
 
-        cv::Mat mask = (curr_canvas != 0);
 
-        auto [dest_img, dest_mask] = backwardWarpImg(right, H.inverse(), dest_canvas_shape);
+        cv::Mat channels[3];
+        cv::split(curr_canvas, channels);
+        cv::Mat mask = (channels[0] != 0) | (channels[1] != 0) | (channels[2] != 0);
+        
 
+        right.convertTo(right, CV_32FC3, 1.0 / 255.0);
+        auto [dest_mask, dest_img] = backwardWarpImg(right, H.inverse(), dest_canvas_shape);
+
+        // Normalize the image to the range [0, 1] and convert to floating point
+        curr_canvas.convertTo(curr_canvas, CV_32F, 1.0 / 255.0);
         left = blendImagePair(curr_canvas, mask, dest_img, dest_mask, "blend");
-
-        #pragma omp parallel for collapse(3)
-        for (int y = 0; y < left.rows; ++y) {
-            for (int x = 0; x < left.cols; ++x) {
-                for (int c = 0; c < left.channels(); ++c) {
-                    if (left.at<cv::Vec3b>(y, x)[c] == static_cast<unsigned char>(1.0 / dimension)) {
-                        left.at<cv::Vec3b>(y, x)[c] = 0;
-                    }
-                }
-            }
-        }
+        left.convertTo(left, CV_8U, 255.0);
     }
 
     return left;
