@@ -1,18 +1,26 @@
 #!/bin/bash
 
-# Compile the RANSAC project with C++17
+# Compile project with C++17
+
+DEBUG=1
 
 # Set compiler
 CXX=g++
 
 # Set source files
-SOURCES="ransac.cpp helper.cpp backwardWarpImg.cpp blendImagePair.cpp homography.cpp"
+SOURCES="stitchImg.cpp ransac.cpp helper.cpp backwardWarpImg.cpp blendImagePair.cpp homography.cpp"
 
 # Set output binary name
-OUTPUT="ransac_program"
+OUTPUT="stitch_image"
 
 # Compile with C++17, linking OpenCV
-$CXX -std=c++17 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
+if [ "$DEBUG" -eq 0 ]; then
+    echo "Compilation with O2 optimization."
+    $CXX -std=c++17 -O2 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
+else
+    echo "Compilation with debug info."
+    $CXX -std=c++17 -g $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
+fi
 
 # Check compilation result
 if [ $? -eq 0 ]; then

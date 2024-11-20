@@ -1,3 +1,4 @@
 .DS_Store
 .vscode
 source/ransac_program
+source/stitch_image

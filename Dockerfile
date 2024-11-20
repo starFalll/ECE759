@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     git \
     unzip \
+    gdb \
     && rm -rf /var/lib/apt/lists/*
 
 # Install OpenMP (comes with GCC)
