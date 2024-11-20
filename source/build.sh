@@ -2,7 +2,7 @@
 
 # Compile project with C++17
 
-DEBUG=1
+DEBUG=0
 
 # Set compiler
 CXX=g++

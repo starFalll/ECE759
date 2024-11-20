@@ -34,13 +34,24 @@ We can always use the same docker image without building the docker again.
 
 2. Add new CPP `.h` and `.cpp` files below `source` directory, implementing your logic here. In your code, save the photo results to the directory that below `photos` (Please `mkdir` your own directory below `photos`).
 
-3. Compile source code in Docker container, for example, compile `homography`:
+3. Compile source code in Docker container, for example, compile `stitch_image`:
+
+   In `build.sh`, we can choose to generate debug or release version:
 
    ```
-   root@xxx:/workspace/source# g++ -fopenmp -o homography_app homography.cpp homography.h `pkg-config --cflags --libs opencv4`
+   Debug=0  # 0:release, 1:debug
    ```
 
-4. Review the results and debug the issues.
+   The default is release version, then we run commond:
+
+   ```shell
+   root@xxx:/workspace/source# sh build.sh
+   Compilation with O2 optimization.
+   Compilation successful. Run ./stitch_image to execute the program.
+   root@xxx:/workspace/source# ./stitch_image
+   ```
+
+4. Review the results in `photos/data/stitched_mountain.png`, and debug the issues:
 
 5. Exit the Docker:
 
@@ -50,5 +61,7 @@ We can always use the same docker image without building the docker again.
 
 6. Git add, commit and push to your own branch, ask @Ethan to review and merge.
 
-7. Supplymentary Jidong's comments:
+### Others
+
+1. Supplymentary Jidong's comments:
    In the blendImagePair.cpp and backwardWarpImg.cpp files, there are tips for how to compile these two files, and you can also check the input and output data format with the attached commented example main function.
