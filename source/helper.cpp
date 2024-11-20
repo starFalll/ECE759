@@ -1,4 +1,5 @@
 #include "helper.h"
+#include "common.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 #include <omp.h>
@@ -43,7 +44,7 @@ std::pair<std::vector<Eigen::Vector2d>, std::vector<Eigen::Vector2d>> genSIFTMat
     std::vector<Eigen::Vector2d> xs(matches.size());
     std::vector<Eigen::Vector2d> xd(matches.size());
 
-    #pragma omp parallel for
+    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
     for (size_t i = 0; i < matches.size(); ++i) {
         const cv::KeyPoint& kp_s = keypoints_s[matches[i].queryIdx];
         const cv::KeyPoint& kp_d = keypoints_d[matches[i].trainIdx];

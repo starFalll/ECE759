@@ -1,4 +1,5 @@
 #include "blendImagePair.h"
+#include "common.h"
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <omp.h>
@@ -78,7 +79,7 @@ cv::Mat blendImagePair(const cv::Mat& img1, const cv::Mat& mask1, const cv::Mat&
         out_img = cv::Mat::zeros(img1.size(), img1.type());
 
         // Parallelize the blending operation using OpenMP
-        #pragma omp parallel for
+        #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
         for (int y = 0; y < img1.rows; ++y) {
             const float* img1_ptr = img1.ptr<float>(y);
             const float* img2_ptr = img2.ptr<float>(y);

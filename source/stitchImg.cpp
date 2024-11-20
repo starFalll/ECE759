@@ -138,7 +138,8 @@ int main(int argc, char *argv[]) {
     auto end_time = high_resolution_clock::now();
     auto duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end_time - start_time);
 
-    std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
+    // std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
+    std::cout<<duration_sec.count()<<std::endl;
     // Save the result
     cv::imwrite("../photos/data/stitched_school.png", result);
 

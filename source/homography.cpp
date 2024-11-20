@@ -1,13 +1,14 @@
 #include <iostream>
 #include <omp.h>
 #include "homography.h"
+#include "common.h"
 
 // Function to compute homography matrix
 Eigen::Matrix3d computeHomography(const std::vector<Eigen::Vector2d>& src_pts, const std::vector<Eigen::Vector2d>& dest_pts) {
     int n = src_pts.size();
     Eigen::MatrixXd A(2 * n, 9);
 
-    #pragma omp parallel for
+    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
     for (int i = 0; i < n; ++i) {
         double x1 = src_pts[i][0], y1 = src_pts[i][1];
         double x2 = dest_pts[i][0], y2 = dest_pts[i][1];
@@ -33,7 +34,7 @@ Eigen::Matrix3d computeHomography(const std::vector<Eigen::Vector2d>& src_pts, c
 std::vector<Eigen::Vector2d> applyHomography(const Eigen::Matrix3d& H, const std::vector<Eigen::Vector2d>& src_pts) {
     int n = src_pts.size();
     std::vector<Eigen::Vector2d> dest_pts(n);
-    #pragma omp parallel for
+    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
     for (int i = 0; i < n; ++i) {
         Eigen::Vector3d pt(src_pts[i][0], src_pts[i][1], 1.0);
         Eigen::Vector3d transformed_pt = H * pt;
@@ -54,7 +55,7 @@ cv::Mat showCorrespondence(const cv::Mat& img1, const cv::Mat& img2, const std::
     img2.copyTo(result(cv::Rect(img1.cols, 0, img2.cols, img2.rows)));
 
     // Draw lines for correspondences
-    #pragma omp parallel for
+    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
     for (size_t i = 0; i < pts1.size(); ++i) {
         cv::Point pt1(pts1[i][0], pts1[i][1]);
         cv::Point pt2(pts2[i][0] + img1.cols, pts2[i][1]);

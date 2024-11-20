@@ -2,6 +2,7 @@
 #include "homography.h"
 #include "helper.h"
 #include "backwardWarpImg.h"
+#include "common.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
 #include <iostream>
@@ -31,7 +32,7 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
         std::mt19937 local_gen(rd() + omp_get_thread_num());
 
 
-        #pragma omp for
+        #pragma omp for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
         for (int i = 0; i < ransac_n; ++i) {
             // Randomly select 4 points
             std::vector<int> idx(4);
@@ -79,6 +80,7 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
 
     // Create inliers mask
     std::vector<bool> inliers_mask(src_pt.size(), false);
+    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
     for (int idx : best_point) {
         inliers_mask[idx] = true;
     }
