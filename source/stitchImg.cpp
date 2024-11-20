@@ -3,12 +3,17 @@
 #include <algorithm>
 #include <cmath>
 #include <omp.h>
+#include <chrono>
+#include <string>
 #include "stitchImg.h"
 #include "homography.h"
 #include "helper.h"
 #include "ransac.h"
 #include "blendImagePair.h"
 #include "backwardWarpImg.h"
+
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
 
 void PrintMat(const cv::Mat& img, std::string name)
 {
@@ -83,25 +88,50 @@ cv::Mat stitchImg(const std::vector<cv::Mat>& imgs) {
 }
 
 int main() {
-    // Load example images
-    cv::Mat img_center = cv::imread("../photos/data/mountain_center.jpg");
-    cv::Mat img_left = cv::imread("../photos/data/mountain_left.jpg");
-    cv::Mat img_right = cv::imread("../photos/data/mountain_right.jpg");
+    // // Load example images
+    // cv::Mat img_center = cv::imread("../photos/data/mountain_center.jpg");
+    // cv::Mat img_left = cv::imread("../photos/data/mountain_left.jpg");
+    // cv::Mat img_right = cv::imread("../photos/data/mountain_right.jpg");
 
-    if (img_center.empty() || img_left.empty() || img_right.empty()) {
-        std::cerr << "Could not load images." << std::endl;
-        return -1;
-    }
+    // if (img_center.empty() || img_left.empty() || img_right.empty()) {
+    //     std::cerr << "Could not load images." << std::endl;
+    //     return -1;
+    // }
+    // std::vector<cv::Mat> imgs;
+    // imgs.push_back(img_center);
+    // imgs.push_back(img_left);
+    // imgs.push_back(img_right);
+
+    // auto start_time = high_resolution_clock::now();
+    // // stitch images
+    // cv::Mat result = stitchImg(imgs);
+    // auto end_time = high_resolution_clock::now();
+    // auto duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end_time - start_time);
+
+    // std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
+    
+
+    // // Save the result
+    // cv::imwrite("../photos/data/stitched_mountain.png", result);
+
     std::vector<cv::Mat> imgs;
-    imgs.push_back(img_center);
-    imgs.push_back(img_left);
-    imgs.push_back(img_right);
+    for (int i = 2; i >= 0; i--) {
+        imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
+    }
+    for (int i = 3; i < 6; i++) {
+        imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
+    } 
 
+    auto start_time = high_resolution_clock::now();
     // stitch images
     cv::Mat result = stitchImg(imgs);
+    auto end_time = high_resolution_clock::now();
+    auto duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end_time - start_time);
 
+    std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
     // Save the result
-    cv::imwrite("../photos/data/stitched_mountain.png", result);
+    cv::imwrite("../photos/data/stitched_school.png", result);
+
 
     return 0;
 }
