@@ -2,21 +2,29 @@
 #include <omp.h>
 
 std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen::Matrix3d& destToSrc_H, const cv::Size& canvas_shape) {
-    // Input arguments: src_img is the source image, with size (width, height, 3)
+    // Input arguments: {src_img, destToSrc_H, canvas_shape}.
+    // src_img is the source image,3-channel float32 (CV_32FC3) matrix, range [0.0f, 1.0f] with size (width, height, 3)
     // destToSrc_H: inverse of H_3x3 
     // canvas_shape is the shape of canvas with (width, height)
     
     // Output: {dest_mask, dest_img}. 
-    // dest_mask is a uint8 (CV_8U) matrix, the values are 0 or 1
-    // dest_img is a 3-channel float64 (CV_64FC3) matrix, are the warpped source image
+    // dest_mask is a uint8 (CV_8U) binary matrix, the values are 0 or 1
+    // dest_img is a 3-channel float32 (CV_32FC3) matrix, range 0.0 - 1.0, are the warpped source image
 
+    // Assert input formats
+    CV_Assert(src_img.type() == CV_32FC3);
+    CV_Assert(canvas_shape.width > 0 && canvas_shape.height > 0);
 
     // initialize dest_img and mask
-    cv::Mat dest_img = cv::Mat::zeros(canvas_shape, CV_64FC3);  // dest_img, float64, 3 channels
-    cv::Mat dest_mask = cv::Mat::zeros(canvas_shape, CV_8U);    // mask, 0 or 1
+    cv::Mat dest_img = cv::Mat::zeros(canvas_shape, CV_32FC3);  // dest_img, float32, 3 channels, range 0.0 - 1.0
+    cv::Mat dest_mask = cv::Mat::zeros(canvas_shape, CV_8U);    // mask, uint8, values: 0 or 1
 
     int height_src = src_img.rows;
     int width_src = src_img.cols;
+
+    const float* src_ptr = src_img.ptr<float>();
+    float* dest_ptr = dest_img.ptr<float>();
+    uchar* mask_ptr = dest_mask.ptr<uchar>();
 
     // OpenMP
     #pragma omp parallel for
@@ -31,18 +39,18 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
             double src_x = src_coords(0) / src_coords(2);
             double src_y = src_coords(1) / src_coords(2);
 
-            // check if the calculated src_x and src_y are within the source image 
-            
-            if (src_x >= 0 && src_x < width_src && src_y >= 0 && src_y < height_src) {
-                // Take an integer and make sure the index is within the image range
-                int src_x_int = static_cast<int>(src_x);
-                int src_y_int = static_cast<int>(src_y);
+            // check if the calculated src_x and src_y are within the source image
+            int src_x_int = static_cast<int>(std::round(src_x));
+            int src_y_int = static_cast<int>(std::round(src_y));
 
-                //dest_img
-                dest_img.at<cv::Vec3d>(y, x) = src_img.at<cv::Vec3d>(src_y_int, src_x_int);
+            if (src_x_int >= 0 && src_x_int < width_src && src_y_int >= 0 && src_y_int < height_src) {
+                int src_idx = (src_y_int * width_src + src_x_int) * 3; // row order index: (row_index * image_width + column_index)*3, multiple 3 is because each pixel has 3 channels
+                int dest_idx = (y * canvas_shape.width + x) * 3;
 
-                // set mask, pixel value = 1 if it is in the source image
-                dest_mask.at<uchar>(y, x) = 1;
+                dest_ptr[dest_idx] = src_ptr[src_idx];
+                dest_ptr[dest_idx + 1] = src_ptr[src_idx + 1];
+                dest_ptr[dest_idx + 2] = src_ptr[src_idx + 2];
+                mask_ptr[y * canvas_shape.width + x] = 1;
             }
         }
     }
@@ -62,6 +70,7 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
 // #include "backwardWarpImg.h"  //
 // #include "homography.h"
 
+
 // int main() {
 //     // Loading background and foreground images
 //     cv::Mat bg_img = cv::imread("../photos/backwardWarpImg_data/Osaka.png");
@@ -73,8 +82,8 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
 //     }
 
 //     // Convert the image to a floating point value between [0, 1]
-//     bg_img.convertTo(bg_img, CV_64FC3, 1.0 / 255.0);
-//     portrait_img.convertTo(portrait_img, CV_64FC3, 1.0 / 255.0);
+//     bg_img.convertTo(bg_img, CV_32FC3, 1.0 / 255.0);
+//     portrait_img.convertTo(portrait_img, CV_32FC3, 1.0 / 255.0);
 
 //     // Define the source and destination points
 //     std::vector<Eigen::Vector2d> src_pts = { {3, 2},{324, 2}, {3, 399}, {326, 398}};
@@ -103,7 +112,7 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
 //     cv::Mat mask_3c;
 //     cv::Mat mask_channels[] = {mask_inv, mask_inv, mask_inv };
 //     cv::merge(mask_channels, 3, mask_3c);
-//     mask_3c.convertTo(mask_3c, CV_64FC3);
+//     mask_3c.convertTo(mask_3c, CV_32FC3);
 
 //     // save dest_img
 //     cv::Mat dest_img_normalized;
