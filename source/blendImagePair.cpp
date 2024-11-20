@@ -8,6 +8,34 @@ cv::Mat blendImagePair(const cv::Mat& img1, const cv::Mat& mask1, const cv::Mat&
     // Input: "mask1" and "mask2" (binary mask, CV_8U, one channel, range [0,1] and [0,255] are both ok, since it will be automatically normalized below)
     // Output: "out_img" (CV_32FC3, 3 channels, range 0.0-1.0)
 
+    // *** Validate Inputs ***
+    // 1. Check if inputs are empty
+    if (img1.empty() || img2.empty() || mask1.empty() || mask2.empty()) {
+        throw std::invalid_argument("Error: One or more input matrices are empty.");
+    }
+
+    // 2. Check sizes
+    if (img1.size() != img2.size()) {
+        throw std::invalid_argument("Error: img1 and img2 sizes do not match.");
+    }
+    if (mask1.size() != img1.size() || mask2.size() != img2.size()) {
+        throw std::invalid_argument("Error: Mask sizes do not match corresponding image sizes.");
+    }
+
+    // 3. Check types
+    if (img1.type() != CV_32FC3 || img2.type() != CV_32FC3) {
+        throw std::invalid_argument("Error: img1 and img2 must be of type CV_32FC3 (3-channel, float32).");
+    }
+    if (mask1.type() != CV_8U || mask2.type() != CV_8U) {
+        throw std::invalid_argument("Error: mask1 and mask2 must be of type CV_8U (single-channel, 8-bit).");
+    }
+
+    // 4. Validate mode
+    if (mode != "overlay" && mode != "blend") {
+        throw std::invalid_argument("Error: mode must be either 'overlay' or 'blend'.");
+    }
+
+    
     // Input masks normalization (normalized binary values: 0 or 255 CV_8U)
     cv::Mat mask1_normalized = (mask1 > 0) * 255;  // Ensure binary mask
     cv::Mat mask2_normalized = (mask2 > 0) * 255;

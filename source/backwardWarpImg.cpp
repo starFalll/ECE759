@@ -11,9 +11,36 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
     // dest_mask is a uint8 (CV_8U) binary matrix, the values are 0 or 1
     // dest_img is a 3-channel float32 (CV_32FC3) matrix, range 0.0 - 1.0, are the warpped source image
 
-    // Assert input formats
-    CV_Assert(src_img.type() == CV_32FC3);
-    CV_Assert(canvas_shape.width > 0 && canvas_shape.height > 0);
+
+    // Validate Inputs
+    // 1. Check if src_img is empty
+    if (src_img.empty()) {
+        throw std::invalid_argument("Error: src_img is empty.");
+    }
+
+    // 2. Check src_img type
+    if (src_img.type() != CV_32FC3) {
+        throw std::invalid_argument("Error: src_img must be of type CV_32FC3 (3-channel, float32).");
+    }
+
+    // 3. Check src_img value range (optional, for debugging)
+    double minVal, maxVal;
+    cv::minMaxLoc(src_img, &minVal, &maxVal);
+    if (minVal < 0.0 || maxVal > 1.0) {
+        throw std::invalid_argument("Error: src_img values must be in range [0.0, 1.0].");
+    }
+
+    // 4. Check canvas_shape dimensions
+    if (canvas_shape.width <= 0 || canvas_shape.height <= 0) {
+        throw std::invalid_argument("Error: canvas_shape dimensions must be positive.");
+    }
+
+    // 5. Check destToSrc_H validity (optional)
+    if (destToSrc_H.rows() != 3 || destToSrc_H.cols() != 3) {
+        throw std::invalid_argument("Error: destToSrc_H must be a 3x3 matrix.");
+    }
+
+
 
     // initialize dest_img and mask
     cv::Mat dest_img = cv::Mat::zeros(canvas_shape, CV_32FC3);  // dest_img, float32, 3 channels, range 0.0 - 1.0
