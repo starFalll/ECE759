@@ -24,7 +24,7 @@ fi
 
 # Check compilation result
 if [ $? -eq 0 ]; then
-    echo "Compilation successful. Run ./$OUTPUT to execute the program."
+    echo "Compilation successful. Run ./$OUTPUT thread_num to execute the program."
 else
     echo "Compilation failed. Please check the errors above."
 fi
