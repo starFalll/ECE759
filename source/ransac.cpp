@@ -6,6 +6,7 @@
 #include <opencv2/features2d.hpp>
 #include <iostream>
 #include <random>
+#include <omp.h>
 
 std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
     const std::vector<Eigen::Vector2d>& src_pt,
@@ -20,43 +21,59 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, src_pt.size() - 1);
 
-    for (int i = 0; i < ransac_n; ++i) {
-        // Randomly select 4 points
-        std::vector<int> idx(4);
-        for (int& id : idx) {
-            id = dis(gen);
-        }
+    #pragma omp parallel
+    {
+        // thread-private variable
+        std::vector<int> local_best_point;
+        Eigen::Matrix3d local_best_H;
 
-        std::vector<Eigen::Vector2d> src(4);
-        std::vector<Eigen::Vector2d> dest(4);
-        for (int j = 0; j < 4; ++j) {
-            src[j] = src_pt[idx[j]];
-            dest[j] = dest_pt[idx[j]];
-        }
+        // Creating a thread-private random number generator
+        std::mt19937 local_gen(rd() + omp_get_thread_num());
 
-        // Compute homography
-        Eigen::Matrix3d H = computeHomography(src, dest);
 
-        // Apply homography
-        std::vector<Eigen::Vector2d> dest_hat = applyHomography(H, src_pt);
+        #pragma omp for
+        for (int i = 0; i < ransac_n; ++i) {
+            // Randomly select 4 points
+            std::vector<int> idx(4);
+            for (int& id : idx) {
+                id = dis(local_gen);
+            }
 
-        // Find inliers
-        std::vector<int> valid_point;
-        for (size_t j = 0; j < dest_hat.size(); ++j) {
-            double distance = (dest_hat[j] - dest_pt[j]).norm();
-            if (distance < eps) {
-                valid_point.push_back(j);
+            std::vector<Eigen::Vector2d> src(4);
+            std::vector<Eigen::Vector2d> dest(4);
+            for (int j = 0; j < 4; ++j) {
+                src[j] = src_pt[idx[j]];
+                dest[j] = dest_pt[idx[j]];
+            }
+
+            // Compute homography
+            Eigen::Matrix3d H = computeHomography(src, dest);
+
+            // Apply homography
+            std::vector<Eigen::Vector2d> dest_hat = applyHomography(H, src_pt);
+
+            // Find inliers
+            std::vector<int> valid_point;
+            for (size_t j = 0; j < dest_hat.size(); ++j) {
+                double distance = (dest_hat[j] - dest_pt[j]).norm();
+                if (distance < eps) {
+                    valid_point.push_back(j);
+                }
+            }
+
+            // Update thread local best result
+            if (valid_point.size() > local_best_point.size()) {
+                local_best_point = valid_point;
+                local_best_H = H;
             }
         }
-
-        // Update best points and homography if current iteration is better
-        if (valid_point.size() > best_point.size()) {
-            best_point = valid_point;
-            best_H = H;
-        }
-
-        if (valid_point.size() == src_pt.size()) {
-            break;
+        // Using critical sections to update the global optimal result
+        #pragma omp critical
+        {
+            if (local_best_point.size() > best_point.size()) {
+                best_point = local_best_point;
+                best_H = local_best_H;
+            }
         }
     }
 

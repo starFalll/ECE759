@@ -16,10 +16,10 @@ OUTPUT="stitch_image"
 # Compile with C++17, linking OpenCV
 if [ "$DEBUG" -eq 0 ]; then
     echo "Compilation with O2 optimization."
-    $CXX -std=c++17 -O2 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
+    $CXX -std=c++17 -O2 $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4` -fopenmp
 else
     echo "Compilation with debug info."
-    $CXX -std=c++17 -g $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4`
+    $CXX -std=c++17 -g $SOURCES -o $OUTPUT `pkg-config --cflags --libs opencv4` -fopenmp
 fi
 
 # Check compilation result

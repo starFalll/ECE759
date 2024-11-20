@@ -58,6 +58,7 @@ cv::Mat showCorrespondence(const cv::Mat& img1, const cv::Mat& img2, const std::
     for (size_t i = 0; i < pts1.size(); ++i) {
         cv::Point pt1(pts1[i][0], pts1[i][1]);
         cv::Point pt2(pts2[i][0] + img1.cols, pts2[i][1]);
+        #pragma omp critical(LOCK_RESULT)
         cv::line(result, pt1, pt2, cv::Scalar(255, 0, 0), 2);
     }
 
