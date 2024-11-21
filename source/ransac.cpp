@@ -32,7 +32,7 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
         std::mt19937 local_gen(rd() + omp_get_thread_num());
 
 
-        #pragma omp for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
+        #pragma omp for 
         for (int i = 0; i < ransac_n; ++i) {
             // Randomly select 4 points
             std::vector<int> idx(4);
