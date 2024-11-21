@@ -11,7 +11,8 @@ def plot_time_cost(file_name, output_pdf):
     threads = list(range(1, len(times) + 1))
 
     # Create the plot
-    plt.plot(threads, times, marker='o', label=file_name)
+    # plt.plot(threads, times, marker='o', label=file_name)
+    plt.plot(threads, times, marker='o')
     schedule_type, chunk, _, max_thread, _ = file_name.split('_')
     schedule_type = schedule_type.split('/')[-1]
     # Add labels and title
@@ -19,7 +20,6 @@ def plot_time_cost(file_name, output_pdf):
     plt.ylabel('Time Cost (ms)')
     plt.title('Time Cost vs. Threads - {}={}, max threads={}'.format(schedule_type, chunk, max_thread))
     plt.grid(True)
-    plt.legend()
 
     # Save the plot as a PDF
     plt.savefig(output_pdf)
