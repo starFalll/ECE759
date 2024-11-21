@@ -89,45 +89,25 @@ cv::Mat stitchImg(const std::vector<cv::Mat>& imgs) {
 }
 
 int main(int argc, char *argv[]) {
-    // // Load example images
-    // cv::Mat img_center = cv::imread("../photos/data/mountain_center.jpg");
-    // cv::Mat img_left = cv::imread("../photos/data/mountain_left.jpg");
-    // cv::Mat img_right = cv::imread("../photos/data/mountain_right.jpg");
-
-    // if (img_center.empty() || img_left.empty() || img_right.empty()) {
-    //     std::cerr << "Could not load images." << std::endl;
-    //     return -1;
-    // }
-    // std::vector<cv::Mat> imgs;
-    // imgs.push_back(img_center);
-    // imgs.push_back(img_left);
-    // imgs.push_back(img_right);
-
-    // auto start_time = high_resolution_clock::now();
-    // // stitch images
-    // cv::Mat result = stitchImg(imgs);
-    // auto end_time = high_resolution_clock::now();
-    // auto duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end_time - start_time);
-
-    // std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
-    
-
-    // // Save the result
-    // cv::imwrite("../photos/data/stitched_mountain.png", result);
-
     if (argc != 2) {
         std::cout << "please run commond: ./stitch_image thread_num " << std::endl;
         return -1;
     }
     int thread_num = atoi(argv[1]);
+    // Load images
+    cv::Mat img_center = cv::imread("../photos/data/mountain_center.jpg");
+    cv::Mat img_left = cv::imread("../photos/data/mountain_left.jpg");
+    cv::Mat img_right = cv::imread("../photos/data/mountain_right.jpg");
+
+    if (img_center.empty() || img_left.empty() || img_right.empty()) {
+        std::cerr << "Could not load images." << std::endl;
+        return -1;
+    }
 
     std::vector<cv::Mat> imgs;
-    for (int i = 2; i >= 0; i--) {
-        imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
-    }
-    for (int i = 3; i < 6; i++) {
-        imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
-    } 
+    imgs.push_back(img_center);
+    imgs.push_back(img_left);
+    imgs.push_back(img_right);
 
     // set thread_num
     omp_set_num_threads(thread_num);
@@ -140,8 +120,38 @@ int main(int argc, char *argv[]) {
 
     // std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
     std::cout<<duration_sec.count()<<std::endl;
+    
+
     // Save the result
-    cv::imwrite("../photos/data/stitched_school.png", result);
+    cv::imwrite("../photos/data/stitched_mountain.png", result);
+
+    // if (argc != 2) {
+    //     std::cout << "please run commond: ./stitch_image thread_num " << std::endl;
+    //     return -1;
+    // }
+    // int thread_num = atoi(argv[1]);
+
+    // std::vector<cv::Mat> imgs;
+    // for (int i = 2; i >= 0; i--) {
+    //     imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
+    // }
+    // for (int i = 3; i < 6; i++) {
+    //     imgs.emplace_back(cv::imread("../photos/data/input/1114008" + std::to_string(i) + "_l.PNG"));
+    // } 
+
+    // // set thread_num
+    // omp_set_num_threads(thread_num);
+
+    // auto start_time = high_resolution_clock::now();
+    // // stitch images
+    // cv::Mat result = stitchImg(imgs);
+    // auto end_time = high_resolution_clock::now();
+    // auto duration_sec = std::chrono::duration_cast<duration<double, std::milli>>(end_time - start_time);
+
+    // // std::cout<<"Success! Total time:"<< duration_sec.count()<<"ms"<<std::endl;
+    // std::cout<<duration_sec.count()<<std::endl;
+    // // Save the result
+    // cv::imwrite("../photos/data/stitched_school.png", result);
 
 
     return 0;
