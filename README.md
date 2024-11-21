@@ -27,7 +27,7 @@ We can always use the same docker image without building the docker again.
 1. Run Docker container's interactive shell in the ECE759 dicretory:
 
    ```
-   docker container run -it -v "$(pwd)/source:/workspace/source" -v "$(pwd)/photos:/workspace/photos" ece759
+   docker container run -it -v "$(pwd)/source:/workspace/source" -v "$(pwd)/photos:/workspace/photos" -v "$(pwd)/results:/workspace/results" ece759
    ```
 
    `-v` will mount your local machine's directory to the container's /workspace/* directory.
