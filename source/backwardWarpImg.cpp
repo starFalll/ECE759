@@ -55,7 +55,7 @@ std::pair<cv::Mat, cv::Mat> backwardWarpImg(const cv::Mat& src_img, const Eigen:
     uchar* mask_ptr = dest_mask.ptr<uchar>();
 
     // OpenMP
-    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) collapse(2)
+    #pragma omp parallel for collapse(2)
     for (int y = 0; y < canvas_shape.height; ++y) {
         for (int x = 0; x < canvas_shape.width; ++x) {
             // Use the homography matrix to calculate corresponding points in the source image

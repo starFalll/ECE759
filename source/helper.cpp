@@ -44,7 +44,7 @@ std::pair<std::vector<Eigen::Vector2d>, std::vector<Eigen::Vector2d>> genSIFTMat
     std::vector<Eigen::Vector2d> xs(matches.size());
     std::vector<Eigen::Vector2d> xd(matches.size());
 
-    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
+    #pragma omp parallel for 
     for (size_t i = 0; i < matches.size(); ++i) {
         const cv::KeyPoint& kp_s = keypoints_s[matches[i].queryIdx];
         const cv::KeyPoint& kp_d = keypoints_d[matches[i].trainIdx];

@@ -12,21 +12,13 @@ if [[ "$1" != "static" && "$1" != "dynamic" && "$1" != "guided" ]]; then
     exit 1
 fi
 
-cp common.h common_backup.h
+sh build.sh
 
 for ((i = 1; i <= 16; i *= 2))
 do
-echo """#define FOR_SCHEDULE_TYPE $1
+export OMP_SCHEDULE="${1},${i}"
 
-#define CHUNKS_PER_THREAD $i
-
-#define OMP_SCHEDULE(type, chunk) schedule(type, chunk)""" > common.h
-
-sh build.sh
 echo "begin to write ${1}_${i}_threads_8_results.txt"
 bash batchRun.sh ${2} | tee ../results/${1}_${i}_threads_8_results.txt
 
 done
-
-cp common_backup.h common.h
-rm common_backup.h

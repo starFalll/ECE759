@@ -80,7 +80,7 @@ std::pair<std::vector<bool>, Eigen::Matrix3d> runRANSAC(
 
     // Create inliers mask
     std::vector<bool> inliers_mask(src_pt.size(), false);
-    #pragma omp parallel for OMP_SCHEDULE(FOR_SCHEDULE_TYPE, CHUNKS_PER_THREAD) 
+    #pragma omp parallel for 
     for (int idx : best_point) {
         inliers_mask[idx] = true;
     }
