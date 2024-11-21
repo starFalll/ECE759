@@ -61,6 +61,33 @@ We can always use the same docker image without building the docker again.
 
 6. Git add, commit and push to your own branch, ask @Ethan to review and merge.
 
+### Benchmark Test
+
+1. Run Docker container's interactive shell in the ECE759 dicretory:
+
+   ```
+   docker container run -it -v "$(pwd)/source:/workspace/source" -v "$(pwd)/photos:/workspace/photos" -v "$(pwd)/results:/workspace/results" ece759
+   ```
+
+   `-v` will mount your local machine's directory to the container's /workspace/* directory.
+
+2. Run benchmark test script:
+
+   ```
+   # Usage: benchmark.sh <schedule_type>(static|dynamic|guided) <max_thread_num>
+   root@xxx:/workspace/source# bash benchmark.sh guided 8
+   ```
+
+3. We can see the results from the `results` directory.
+
+4. Draw pictures on your own machine rather than docker container:
+
+   ```
+   python plot.py
+   ```
+
+5. All the pictures are stored in the `results` directory.
+
 ### Others
 
 1. Supplymentary Jidong's comments:
