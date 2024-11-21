@@ -23,6 +23,7 @@ echo """#define FOR_SCHEDULE_TYPE $1
 #define OMP_SCHEDULE(type, chunk) schedule(type, chunk)""" > common.h
 
 sh build.sh
+echo "begin to write ${1}_${i}_threads_8_results.txt"
 bash batchRun.sh ${2} | tee ../results/${1}_${i}_threads_8_results.txt
 
 done
