@@ -18,7 +18,7 @@ for ((i = 1; i <= 16; i *= 2))
 do
 export OMP_SCHEDULE="${1},${i}"
 
-echo "begin to write ${1}_${i}_threads_8_results.txt"
-bash batchRun.sh ${2} | tee ../results/${1}_${i}_threads_8_results.txt
+echo "begin to write ${1}_${i}_threads_${2}_results.txt"
+bash batchRun.sh ${2} | tee ../results/${1}_${i}_threads_${2}_results.txt
 
 done
